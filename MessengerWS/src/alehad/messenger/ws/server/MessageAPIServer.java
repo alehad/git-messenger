@@ -12,12 +12,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import alehad.messenger.db.SimpleMessengerDatabaseImpl;
+import alehad.messenger.db.MongoDatabaseImpl;
+//import alehad.messenger.db.SimpleMessengerDatabaseImpl;
 import alehad.messenger.model.IMessageStore;
 import alehad.messenger.model.Message;
 import alehad.messenger.model.StoredMessage;
 
-@Path("api")
+@Path("api/messages")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class MessageAPIServer {
@@ -27,11 +28,12 @@ public class MessageAPIServer {
 	public MessageAPIServer() {
 		// no-op default implementation
 		// need to clean up later
-		messageStore = SimpleMessengerDatabaseImpl.getInstance();
+		//messageStore = SimpleMessengerDatabaseImpl.getInstance();
+		messageStore = MongoDatabaseImpl.getInstance();
 	}
 	
 	@GET
-	@Path("/messages")
+	//@Path("/messages")
 	public List<StoredMessage> getMessages() {
 		return messageStore.getMessages();
 	}
