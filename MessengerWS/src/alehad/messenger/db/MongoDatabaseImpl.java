@@ -34,8 +34,8 @@ public class MongoDatabaseImpl implements IMessageStore {
 	private static MongoDatabase mongodb;
 	private static MongoCollection<Document> mongodbCollection;
 	
-	//private static String _mongodbHostName = "mongo-db";
-	private static String _mongodbHostName = "localhost";
+	private static String _mongodbHostName = "mongodb";
+	//private static String _mongodbHostName = "localhost";
 	private static String _mongodbName = "MessengerDBv2";
 	private static String _mongodbCollectionName = "messages";
 	

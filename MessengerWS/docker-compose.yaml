@@ -1,0 +1,14 @@
+version: '3'
+services:
+  mongodb:
+    container_name: docker-mongo
+    image: mongo
+    ports:
+     - "27017:27017"
+  msgr:
+    depends_on:
+     - mongodb
+    container_name: docker-msgr
+    image: msgr:1.0
+    ports:
+     - "8080:8080"
