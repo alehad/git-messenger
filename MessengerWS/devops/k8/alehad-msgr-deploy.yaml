@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alehad-msgr-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alehad-msgr
+  template:
+    metadata:
+      labels:
+        app: alehad-msgr
+    spec:
+      containers:
+      - name: docker-alehad-msgr
+        image: alehad/msgr
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alehad-msgr-svc
+spec:
+  selector:
+    app: alehad-msgr
+  type: LoadBalancer #this type denotes that this is External Service, together with the nodePort below
+  ports:
+    - protocol: TCP
+      port: 8080 
+      targetPort: 8080
+      nodePort: 30080
