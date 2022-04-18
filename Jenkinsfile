@@ -33,7 +33,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('', jenkins_credentials) {
-                        app_docker_image.push("1.0")
+                        app_docker_image.push("1.1")
                         app_docker_image.push("latest")
                     }
                 }

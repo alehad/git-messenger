@@ -30,7 +30,8 @@ public class KafkaMessageBroker {
 	
 	public static final int ALL_MESSAGES = 0;
 	
-	private static String BootstrapServer = "localhost:29092";
+	//private static String BootstrapServer = "localhost:29092";
+	private static String BootstrapServer = "kafka:9092";
 	private static String Group = "alehad-group";
 
 	public KafkaMessageBroker() {
