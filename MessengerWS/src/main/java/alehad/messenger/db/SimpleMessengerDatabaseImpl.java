@@ -10,7 +10,7 @@ import alehad.messenger.model.StoredMessage;
 
 public class SimpleMessengerDatabaseImpl implements IMessageStore {
 
-	private List<StoredMessage> messages = new ArrayList<StoredMessage>();
+	private List<Message> messages = new ArrayList<Message>();
 	
 	private static SimpleMessengerDatabaseImpl instance;
 	
@@ -28,14 +28,14 @@ public class SimpleMessengerDatabaseImpl implements IMessageStore {
 	}
 
 	@Override
-	public List<StoredMessage> getMessages() {
+	public List<Message> getMessages() {
 		return messages;
 	}
 
 	@Override
 	public Message getMessage(int id) {
 		Message message = null;
-		ListIterator<StoredMessage> iterator = instance.messages.listIterator();
+		ListIterator<Message> iterator = instance.messages.listIterator();
 		int storedMsgId = 1; // naive implementation to support Message refactoring
 		while (iterator.hasNext()) {
 			message = iterator.next();

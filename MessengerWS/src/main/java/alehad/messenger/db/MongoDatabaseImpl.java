@@ -1,7 +1,6 @@
 package alehad.messenger.db;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.bson.Document;
@@ -34,8 +33,8 @@ public class MongoDatabaseImpl implements IMessageStore {
 	private static MongoDatabase mongodb;
 	private static MongoCollection<Document> mongodbCollection;
 	
-	private static String _mongodbHostName = "mongodb";
-	//private static String _mongodbHostName = "localhost";
+	//private static String _mongodbHostName = "mongodb";
+	private static String _mongodbHostName = "localhost";
 	private static String _mongodbName = "MessengerDBv2";
 	private static String _mongodbCollectionName = "messages";
 	
@@ -53,8 +52,8 @@ public class MongoDatabaseImpl implements IMessageStore {
 	
 	private MongoDatabaseImpl() {
 		// will need to update host/port once moving to K8
-		// in order for this to work, compose.yaml has to have hostname: mongo-db
-		// specified for the service: mongo
+		// when running inside docker, the host name = name of mongo *service* or
+		// compose.yaml has to have hostname: mongo-db specified for the service: mongo
 		// this will create DNS name of mongo-db for the mongo running inside docker network
 		mongodbClient = new MongoClient(_mongodbHostName, 27017);
 		
@@ -81,9 +80,9 @@ public class MongoDatabaseImpl implements IMessageStore {
 	}
 	
 	@Override
-	public List<StoredMessage> getMessages() {
+	public List<Message> getMessages() {
 
-		List<StoredMessage> messages = new ArrayList<StoredMessage>();
+		List<Message> messages = new ArrayList<Message>();
 		
 		FindIterable<Document> iterable = mongodbCollection.find();
 		MongoCursor<Document> cursor = iterable.iterator();
@@ -96,7 +95,7 @@ public class MongoDatabaseImpl implements IMessageStore {
 			}
 		}
 
-		Collections.sort(messages);
+		//Collections.sort(messages);
 
 		return messages;
 	}
@@ -117,8 +116,8 @@ public class MongoDatabaseImpl implements IMessageStore {
 	public Message createMessage(Message msg) {
 		// check if message id already exists
 		Document doc = new Document();
-//		doc.put(_msgId, mongodbCollection.countDocuments() + 1); // potenital issue with deleted messages in the middle
-		doc.put(_msgId, Math.toIntExact(mongodbCollection.countDocuments()) + 1); // potenital issue with deleted messages in the middle
+		int msgId = Math.toIntExact(mongodbCollection.countDocuments()) + 1;
+		doc.put(_msgId, msgId); // potenital issue with deleted messages in the middle
 		doc.put(_msg, msg.getMessage());
 		doc.put(_auth, msg.getAuthor());
 		try {
@@ -127,7 +126,7 @@ public class MongoDatabaseImpl implements IMessageStore {
 		finally {
 			// TODO: define exception to throw or how to indicate unsuccessful op 
 		}
-		return msg;
+		return getMessage(msgId);
 	}
 
 	@Override
@@ -138,7 +137,7 @@ public class MongoDatabaseImpl implements IMessageStore {
 		Bson update = combine(updateMsg, updateAuth);
 		UpdateOptions options = new UpdateOptions().upsert(true); // this will insert new message if id not found
 		mongodbCollection.updateOne(filter, update, options); // does not throw
-		return msg;
+		return getMessage(id);
 	}
 
 	@Override
