@@ -8,6 +8,11 @@ public class StoredMessage extends Message implements Comparable <StoredMessage>
 		//no-op default constructor
 	}
 
+	public StoredMessage(int msgId, Message msg) {
+        super(msg.getMessage(), msg.getAuthor());
+        this.msgId = msgId;
+    }
+
 	public StoredMessage(int msgId, String message, String author) {
         super(message, author);
         this.msgId = msgId;

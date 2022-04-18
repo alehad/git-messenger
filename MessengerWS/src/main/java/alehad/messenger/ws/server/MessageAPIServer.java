@@ -12,52 +12,54 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import alehad.messenger.db.MongoDatabaseImpl;
-//import alehad.messenger.db.SimpleMessengerDatabaseImpl;
-import alehad.messenger.model.IMessageStore;
+import alehad.messenger.kafka.broker.KafkaMessageBroker;
 import alehad.messenger.model.Message;
-import alehad.messenger.model.StoredMessage;
 
 @Path("api/messages")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class MessageAPIServer {
 
-	private IMessageStore messageStore = null;
-	
+	KafkaMessageBroker kafkaBroker;
+
 	public MessageAPIServer() {
-		// no-op default implementation
-		// need to clean up later
-		//messageStore = SimpleMessengerDatabaseImpl.getInstance();
-		messageStore = MongoDatabaseImpl.getInstance();
+		kafkaBroker = new KafkaMessageBroker();
 	}
 	
 	@GET
 	//@Path("/messages")
-	public List<StoredMessage> getMessages() {
-		return messageStore.getMessages();
+	public List<Message> getMessages() {
+		kafkaBroker.publish(KafkaMessageBroker.Topics.GetAllMessages, Integer.toString(KafkaMessageBroker.ALL_MESSAGES), new Message());
+		return kafkaBroker.processRequest();
 	}
 
 	@GET
 	@Path("/{messageId}")
 	public Message getMessage(@PathParam("messageId") int id) {
-		return messageStore.getMessage(id);
+		kafkaBroker.publish(KafkaMessageBroker.Topics.GetOneMessage, Integer.toString(id), new Message());
+		List<Message> result = kafkaBroker.processRequest();
+		return result.size() > 0 ? result.get(0) : null; 
 	}
 
 	@POST
 	public Message addMessage(Message message) {
-		return messageStore.createMessage(message);
+		kafkaBroker.publish(KafkaMessageBroker.Topics.AddOneMessage, "", message);
+		List<Message> result = kafkaBroker.processRequest();
+		return result.size() > 0 ? result.get(0) : null; 
 	}
 
 	@PUT
 	@Path("/{messageId}")
 	public Message updateMessage(@PathParam("messageId") int id, Message message) {
-		return messageStore.updateMessage(id, message);
+		kafkaBroker.publish(KafkaMessageBroker.Topics.UpdateMessage, Integer.toString(id), message);
+		List<Message> result = kafkaBroker.processRequest();
+		return result.size() > 0 ? result.get(0) : null; 
 	}
 
 	@DELETE
 	@Path("/{messageId}")
 	public void deleteMessage(@PathParam("messageId") int id) {
-		messageStore.deleteMessage(id);
+		kafkaBroker.publish(KafkaMessageBroker.Topics.DeleteMessage, Integer.toString(id), new Message());
+		kafkaBroker.processRequest();
 	}
 }
